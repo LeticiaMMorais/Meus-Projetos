@@ -1,11 +1,55 @@
-
+# imports:
+import csv
 import random
 import os
 
 
+# "limpar()" vai limpar o terminal utilizando um comando que depende do sistema operacional: 
+# 'cls' para windows (cujo os.name é 'nt') ou 'clear' para MacOS e Linux
 def limpar():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+''' 
+As funções "escrever_csv" e "ler_csv" vão servir para atualizar e verificar dados de jogadores, respectivamente.
+
+A de escrever recebe dois parâmetros: a variável "dados", que é uma lista/vetor de dicionários -- [{}] --, 
+e a variável 'arquivo' que é o local onde os dados serão escritos os dados.
+Ela verifica se há dados para escrever e, se haver, os escreve no formato csv.
+'''    
+def escrever_csv(dados, arquivo):
+    if not dados:
+        return
+    
+    cabecalho = dados[0].keys()
+    try:
+        with open(arquivo, mode='w', encoding='utf-8', newline='') as arquivo_csv:
+            csv_escrita = csv.DictWriter(arquivo_csv, fieldnames=cabecalho, delimiter=',')
+            csv_escrita.writeheader()
+            csv_escrita.writerows(dados)
+    except IOError as e:
+        print(f'Ocorreu um erro ao escrever os dados do csv: {e}')
+
+# A função de ler recebe "arquivo" que é o local de onde os dados serão lidos e retorna uma lista de dicionários com os dados.
+def ler_csv(arquivo):
+    dados = []
+    try:
+        with open(arquivo, mode='r', encoding='utf-8') as arquivo_csv:
+            csv_leitura = csv.DictReader(arquivo_csv, delimiter=',')
+            for linha in csv_leitura:
+                dados.append(linha)
+    except IOError as e:
+        print(f'Ocorreu um erro ao ler os dados do csv: {e}')
+    return dados
+
+#################################################################################################################################
+'''
+As 2 funções a seguir têm o mesmo objetivo: imprimir o desenho da forca dependendo da quantidade de erros, 
+sendo a primeira para as dificuldades fácil e médio e a segunda para a difícil.
+
+Elas recebem a variável "erros"(que é um inteiro) e são compostas por um vetor de vetores. 
+Os vetores que estão dentro do vetor têm como elementos cada linha a ser imprimida.
+A variável "erros" serve de índice para o vetor que vai acessar o desenho desejado imprimindo-o com a estrutura de laço "for".
+'''
 def desenho_forca(erros):
     desenho_da_forca = [['_________________','|                |','|','|','|','|','|','_____'],
                         ['_________________','|                |','|              (°-°)','|','|','|','|','_____'], 
@@ -18,8 +62,10 @@ def desenho_forca(erros):
                         ['_________________','|                |','|              (°-°)','|              _/|\_ ','|              _/ \_','|','|','_____'],
                         ['_________________','|                |','|            *´(°-°)`*','|              _/|\_ ','|              _/ \_','|','|','_____'],
                         ['_________________','|                |','|           *´(x o x)`*','|              _/|\_ ','|              _/ \_','|','|','_____']]
+    
     for linha in desenho_da_forca[erros]:
         print(linha)
+
 
 def desenho_forca_dificil(erros):
     desenho_da_forca = [['_________________','|                |','|','|','|','|','|','_____'],
@@ -27,9 +73,12 @@ def desenho_forca_dificil(erros):
                         ['_________________','|                |','|              (°-°)','|              _/|\_ ','|','|','|','_____'],
                         ['_________________','|                |','|              (°-°)','|              _/|\_ ','|               / \ ','|','|','_____'],
                         ['_________________','|                |','|              (°-°)','|              _/|\_ ','|              _/ \_','|','|','_____']]
+    
     for linha in desenho_da_forca[erros]:
         print(linha)
 
+
+# Vai simplesmente imprimir um "Fim de jogo na tela do usuário"
 def fim_de_jogo():
     print('-----------------------------------------------------------------------------------------')
     print(' _______   __   __      __     ____    _______          __   _______   _______   _______ ')
@@ -40,34 +89,75 @@ def fim_de_jogo():
     print('|__|      |__| |__|    |__|   |_____/ |_______|     \_____| |_______| |_______| |_______|')
     print('-----------------------------------------------------------------------------------------')
 
+
+# A seguinte função serve para definir a quantidade de tentativas do jogo:
+# O usuário deve digitar se ele quer o nível fácil, médio ou difícil.
+# Quando as tentativas forem estabelicidas, elas serão retornadas com o 'return'
 def dificuldade():
     tentativas = 0
     global dific
     print('----------------------------------------------------------')
     while True:
-        dific = input('Escolha uma dificuldade:\n-Fácil\n-Médio\n-Difícil\n-')
+        dific = input('Escolha uma dificuldade:\n-Fácil\n-Médio\n-Difícil\n--- ').strip()
         
-        if dific.upper() == 'FÁCIL':
+        if dific.upper() == 'FÁCIL' or dific.upper() == 'FACIL':
             tentativas = 10
+            dific == 'FÁCIL'
             break
-        elif dific.upper() == 'MÉDIO':
+        elif dific.upper() == 'MÉDIO' or dific.upper() == 'MEDIO':
             tentativas = 7
+            dific = 'MÉDIO'
             break
-        elif dific.upper() == 'DIFÍCIL':
+        elif dific.upper() == 'DIFÍCIL' or dific.upper() == 'DIFICIL':
             tentativas = 4
+            dific = 'DIFÍCIL'
             break
         else:
             print('Erro! Tente novamente\n')
     limpar()
     return tentativas
 
-#Registro de jogadores (desafio 5): vai adicionar na lista dicionários com nome e idade dos jogadores
+
+
 def registro_de_jogadores(jogadores,num):
+    jog_atuais = []
+    encontrou_igual = False
     for numero in range(num):
-        jogador = {}
-        jogador['nome']= input(f'Jogador {numero+1}, escreva seu nome/apelido: ')
-        jogador['idade'] = input(f'Jogador {numero+1}, digite sua idade: ')
-        jogadores.append(jogador)
+        
+        while True:
+            ja_jogou = input(f'Jogador {numero+1}, você já está registrado? (s/n)\n--- ').strip()
+            if ja_jogou.lower() in 'sn':
+                break
+            else:
+                print('\nErro! Digite corretamente.')
+        
+        if ja_jogou.lower() == 's':
+            nome = input(f'Escreva seu nome/apelido:\n--- ').strip()
+            for jog in jogadores:
+                if jog['nome'].upper() == nome.upper():
+                    jog_atuais.append(jog)
+        else:
+            while True:
+                nome = input(f'Escreva seu nome/apelido:\n--- ').strip()
+                for jog in jogadores:
+                    if jog['nome'].upper() == nome.upper():
+                        encontrou_igual = True
+                if encontrou_igual:
+                    print('\nEsse apelido não pode ser registrado.\nJá há outro usuário com esse apelido.\n')
+                else:
+                    break
+            if not encontrou_igual:
+                jogador = {}
+                jogador['nome'] = nome
+                jogador['pontuacao'] = 600
+                jogador['recorde'] = 600
+                jogadores.append(jogador)
+                jog_atuais.append(jogador)
+    limpar()
+
+    escrever_csv(jogadores, arq_jogadores)
+    return jog_atuais
+    
 
 
 def escolha_de_palavra(palavras):
@@ -76,7 +166,7 @@ def escolha_de_palavra(palavras):
     for palavra in palavras.keys():
         print('-', palavra)
     while True:
-        escolha = input('Escolha uma categoria da palavra que deseja jogar: ')
+        escolha = input('Escolha uma categoria de palavras que deseja jogar: ').strip()
         if escolha.upper() == 'COMIDAS':
             palavra_escolhida = random.choice(palavras['Comidas'])
             break
@@ -299,7 +389,8 @@ print('               \_____| |_______| |_______| |_______|   |_____/ /__/      
 print('-='*55)
 print(' ')
 
-jogadores = []
+arq_jogadores= 'jogadores.csv'
+jogadores = ler_csv(arq_jogadores)
 
 while True:
     modo_de_jogo = input('Como deseja jogar?\n - solo \n - multiplayer\n')
@@ -307,9 +398,13 @@ while True:
         break
     else:
         print('Erro! digite corretamente')
+
 if modo_de_jogo.upper() == 'SOLO':
+    limpar()
     registro_de_jogadores(jogadores,1)
     forca()
+
 elif modo_de_jogo.upper() == 'MULTIPLAYER':
+    limpar()
     registro_de_jogadores(jogadores,2)
     forcamultijogador()
