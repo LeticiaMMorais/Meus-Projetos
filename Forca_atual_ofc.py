@@ -158,8 +158,14 @@ def registro_de_jogadores(jogadores,num):
     escrever_csv(jogadores, arq_jogadores)
     return jog_atuais
     
-
-
+'''
+A funcao "escolha_de_palavra" vai, primeiro, receber o dicionário "palavras" -- localizado na função "forca", sendo
+que suas chaves são as categorias e o valor uma lista de palavras daquela categoria -- e o usuário deve digitar 
+qual das categorias diponíveis ele quer. 
+Dependendo da escolha do usuário será escolhida uma palavra aleatória da lista de palavras da categoria por meio da
+biblioteca "random" e o método "choice".
+essa palavra escolhida será retornada no final da função, sendo que ela é a palavra que o jogador terá de adivinhar.
+'''
 def escolha_de_palavra(palavras):
     print('----------------------------------------------------------')
     print('Categorias:')
@@ -180,6 +186,7 @@ def escolha_de_palavra(palavras):
             print('Erro! Tente novamente\n')
     limpar()
     return palavra_escolhida
+
 
 def jogar_de_novo():
     while True:
