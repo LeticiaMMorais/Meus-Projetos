@@ -41,6 +41,15 @@ def ler_csv(arquivo):
         print(f'Ocorreu um erro ao ler os dados do csv: {e}')
     return dados
 
+
+def alterar_linha_csv(jog_alteracao, jogadores, arquivo):
+    for jog in jog_alteracao:
+        for jogador in jogadores:
+            if jog['nome'] == jogador['nome']:
+                for chave in jog:  
+                    jogador[chave] = jog[chave]
+    escrever_csv(jogadores, arquivo)
+
 #################################################################################################################################
 '''
 As 2 funções a seguir têm o mesmo objetivo: imprimir o desenho da forca dependendo da quantidade de erros, 
@@ -66,7 +75,6 @@ def desenho_forca(erros):
     for linha in desenho_da_forca[erros]:
         print(linha)
 
-
 def desenho_forca_dificil(erros):
     desenho_da_forca = [['_________________','|                |','|','|','|','|','|','_____'],
                         ['_________________','|                |','|              (°-°)','|                |','|','|','|','_____'],
@@ -80,19 +88,25 @@ def desenho_forca_dificil(erros):
 
 # Vai simplesmente imprimir um "Fim de jogo na tela do usuário"
 def fim_de_jogo():
-    print('-----------------------------------------------------------------------------------------')
+    print('=========================================================================================')
     print(' _______   __   __      __     ____    _______          __   _______   _______   _______ ')
     print('|   ____| |__| |  \    /  |   |    \  |   ____|        |  | |   _   | |  _____| |   _   |')
     print('|  |____   __  |   \  /   |   |  |\ \ |  |____         |  | |  | |  | |  |  __  |  | |  |')
     print('|   ____| |  | |  \ \/ /  |   |  | | ||   ____|     __ |  | |  | |  | |  | |_ | |  | |  |')
     print('|  |      |  | |  |\__/|  |   |  |_/ /|  |____     (  \|  | |  |_|  | |  |__| | |  |_|  |')
     print('|__|      |__| |__|    |__|   |_____/ |_______|     \_____| |_______| |_______| |_______|')
-    print('-----------------------------------------------------------------------------------------')
+    print('=========================================================================================')
 
 
-# A seguinte função serve para definir a quantidade de tentativas do jogo:
-# O usuário deve digitar se ele quer o nível fácil, médio ou difícil.
-# Quando as tentativas forem estabelicidas, elas serão retornadas com o 'return'
+'''
+A seguinte função serve para definir a quantidade de tentativas do jogo:
+O usuário deve digitar se ele quer o nível fácil, médio ou difícil.
+Quando as tentativas forem estabelecidas, elas serão retornadas com o 'return'
+
+E "a função .strip() serve para remover os espaços em branco no início e no final 
+de uma string, retornando uma cópia formatada da string sem os espaços em branco 
+do ínicio e final." Isso facilita o manuseio, ao meu ver.
+'''
 def dificuldade():
     tentativas = 0
     global dific
@@ -132,10 +146,15 @@ def registro_de_jogadores(jogadores,num):
                 print('\nErro! Digite corretamente.')
         
         if ja_jogou.lower() == 's':
-            nome = input(f'Escreva seu nome/apelido:\n--- ').strip()
-            for jog in jogadores:
-                if jog['nome'].upper() == nome.upper():
-                    jog_atuais.append(jog)
+            while True:
+                nome = input(f'Escreva seu nome/apelido:\n--- ').strip()
+                for jog in jogadores:
+                    if jog['nome'].upper() == nome.upper():
+                        jog_atuais.append(jog)
+                if encontrou_igual:
+                    print('\nEsse apelido não foi encontrado.\nVerifique se foi escrito corretamente e tente novamente.\n')
+                else:
+                    break
         else:
             while True:
                 nome = input(f'Escreva seu nome/apelido:\n--- ').strip()
@@ -151,6 +170,7 @@ def registro_de_jogadores(jogadores,num):
                 jogador['nome'] = nome
                 jogador['pontuacao'] = 600
                 jogador['recorde'] = 600
+                jogador['vitorias'] = 0
                 jogadores.append(jogador)
                 jog_atuais.append(jogador)
     limpar()
@@ -164,7 +184,7 @@ que suas chaves são as categorias e o valor uma lista de palavras daquela categ
 qual das categorias diponíveis ele quer. 
 Dependendo da escolha do usuário será escolhida uma palavra aleatória da lista de palavras da categoria por meio da
 biblioteca "random" e o método "choice".
-essa palavra escolhida será retornada no final da função, sendo que ela é a palavra que o jogador terá de adivinhar.
+essa palavra escolhida será retornada no final da função, sendo que ela é a palavra que o jogador terá de adivinhar.çl90=p[.i~;]
 '''
 def escolha_de_palavra(palavras):
     print('----------------------------------------------------------')
@@ -187,16 +207,19 @@ def escolha_de_palavra(palavras):
     limpar()
     return palavra_escolhida
 
-
+# Vai perguntar se quer jogar de novo ou não.
 def jogar_de_novo():
     while True:
-        jogar_novamente = input('Você deseja jogar novamente?S/N:  ')
+        jogar_novamente = input('Você deseja jogar novamente?S/N:  ').strip()
         if jogar_novamente.lower() in 'sn':
             break
         else:
             print('Erro! Digite apenas S ou N.')
     if jogar_novamente.upper() == 'N':
-        print('------------------Obrigada por jogar!-------------------')
+        limpar()
+        print('========================================================')
+        print('------------------Obrigado por jogar!-------------------')
+        print('========================================================')
         sair = True
     else:
         sair = False
@@ -204,15 +227,15 @@ def jogar_de_novo():
 
 # Sistema de pontuação (desafio 6): o jogador começa com 600 pontos e a cada erro perde 100 pontos e a cada acerto ganha 100 + 25 pontos bônus (dependendo das tentativas restantes) + 50 pontos bônus por acertos consecultivos.
 # Regra adicional(desafio 4): se a pontuação <= 0 o jogo termina e se acertar 3 letras consecultivas ganha uma pontuação bônus de 50 pontos.
-def verificar_chute(palavra_secreta, espacos, erro, tentativas, dific, dica):
+def verificar_chute(palavra_secreta, espacos, erro, tentativas, dific, dica, jog_atuais):
     errou = False
     acertou = False
     lista_de_chutes = []
-    global pontuacao
-    pontuacao = 600
     acertos_consecultivos = 0
+    for jog in range(len(jog_atuais)):
+        jog_atuais[jog]['pontuacao'] = 600
 
-    print('Você tem', pontuacao, 'pontos')
+    print('Você tem', jog_atuais[0]['pontuacao'], 'pontos')
 
     while acertou==False and errou==False:
         chute = input('Digite uma letra:  ')
@@ -229,60 +252,63 @@ def verificar_chute(palavra_secreta, espacos, erro, tentativas, dific, dica):
             posicao += 1
 
         if nao_tem_letra == False and chute.upper() not in lista_de_chutes:
-            pontuacao += 100
+            jog_atuais[0]['pontuacao'] += 100
             print('Você ganhou 100 pontos por acertar a letra!')
             acertos_consecultivos += 1 
             if tentativas - erro <= 3:
-                pontuacao += 25
+                jog_atuais[0]['pontuacao'] += 25
                 print('Você ganhou 25 pontos bônus por acertar a letra com base as tentativas de erro')
             if acertos_consecultivos >= 3:
-                pontuacao += 50
+                jog_atuais[0]['pontuacao'] += 50
                 print('Você ganhou 50 pontos por acertar', acertos_consecultivos,'letras consecultivas!')
-            print('Agora você tem', pontuacao, 'pontos')
+            print('Agora você tem', jog_atuais[0]['pontuacao'], 'pontos')
         
         if chute not in lista_de_chutes:
             if nao_tem_letra == True and chute.upper() not in lista_de_chutes:
                print('Na palavra não existe essa letra')
                erro += 1
                print (f'Você perdeu 100 pontos')
-               pontuacao -= 100
-               print('Você tem', pontuacao, 'pontos')
+               jog_atuais[0]['pontuacao'] -= 100
+               print('Você tem', jog_atuais[0]['pontuacao'], 'pontos')
                acertos_consecultivos = 0
-            if erro == tentativas or pontuacao == 0:
+            if erro == tentativas or jog_atuais[0]['pontuacao'] == 0:
                 limpar()
                 print('-='*55)
                 print('Você perdeu o jogo!')
                 print('A palavra era:', palavra_secreta)
                 fim_de_jogo()
                 errou = True
+        
+        if not errou:
+            press_enter = input('\nPressione enter para continuar>>>')
+            limpar()
 
-        press_enter = input('\nPressione enter para continuar>>>')
-        limpar()
+            lista_de_chutes.append(chute.upper()) 
+            print('-'*45)
+            print(dica)
+            if dific.upper() == 'DIFÍCIL':
+                desenho_forca_dificil(erro)
+            else:
+                desenho_forca(erro)
 
-        lista_de_chutes.append(chute.upper()) 
-        print('-'*45)
-        print(dica)
-        if dific.upper() == 'DIFÍCIL':
-            desenho_forca_dificil(erro)
-        else:
-            desenho_forca(erro)
-
-        for letra in espacos:
-            print(letra, end=' ')
-        print()
+            for letra in espacos:
+                print(letra, end=' ')
+            print()
 
         if '_' not in espacos:
             limpar()
             print('-='*55)
+
             print('VOCÊ GANHOU!!')
             print('A palavra era:', palavra_secreta)
+            jog_atuais[0]['vitorias'] = int(jog_atuais[0]['vitorias']) + 1
             fim_de_jogo()
             acertou = True
     return acertou
 
 # Banco de palavras (desafio 1): onde a chave é a categoria da palavra e o valor é uma lista de palavras (que serão escolhidas na função escolha_de_palavras())
 # Dicas (desafio 2): dependendo da palavra escolhida, será imprimido uma dica contida no dicionário
-def forca():
+def forca(jog_atuais, jogadores,arq_jogadores):
     sair = False
     erro = 0 
     palavras = {'Comidas': ['pizza', 'arroz', 'banana', 'feijoada', 'abacate', 'uva', 'pepino', 'caju', 'bife', 'abacaxi', 'salada'], 'Animais': ['falcao', 'cachorro', 'gato', 'raposa', 'galinha', 'elefante', 'abelha', 'aranha', 'borboleta', 'cavalo', 'camelo',], 'Países': ['Italia', 'Egito', 'Cuba', 'Vietna', 'Luxemburgo', 'Canada', 'Japao', 'Kuwait', 'Colombia', 'Argentina', 'Madagascar'] }
@@ -295,6 +321,7 @@ def forca():
             break
         else:
             print('Erro! Digite apenas S ou N.')
+    limpar()
     if start.upper() == 'S':
         while sair == False:
             limpar()
@@ -307,7 +334,6 @@ def forca():
             dica = dicas_das_palavras[palavra_escolhida]
             print('O jogo irá terminar quando acertar ou errar a palavra ou se sua potuação ficar em 0')
             print('-'*50)
-            
             
             palavra_secreta = palavra_escolhida
             espacos = []
@@ -329,12 +355,18 @@ def forca():
                 desenho_forca_dificil(erro)
             else:
                 desenho_forca(erro)
-            acertou = verificar_chute(palavra_secreta,espacos, erro, tentativas, dific, dica)
-            print('Você fez',pontuacao, 'pontos')
+            acertou = verificar_chute(palavra_secreta,espacos, erro, tentativas, dific, dica, jog_atuais)
+            if int(jog_atuais[0]['pontuacao']) > int(jog_atuais[0]['recorde']):
+                print('Parabéns! Você conseguiu um novo recorde! :D')
+                jog_atuais[0]['recorde'] = int(jog_atuais[0]['pontuacao'])
+            print('Você fez',jog_atuais[0]['pontuacao'], 'pontos')
+            alterar_linha_csv(jog_atuais,jogadores,arq_jogadores)
             sair = jogar_de_novo()
     else:
-        print('------------------Obrigada por jogar!-------------------')   
-        
+        print('========================================================')
+        print('------------------Obrigado por jogar!-------------------')   
+        print('========================================================')
+
 
 # Multijogador (desafio 9):  no primeiro turno, um dos jogadores irá colocar sua palavra e uma dica (mestre da rodada); no segundo turno, o outro jogador irá tentar a palavra (jogador da rodada).
 def forcamultijogador():
@@ -347,6 +379,7 @@ def forcamultijogador():
             break
         else:
             print('Erro! Digite apenas S ou N.')
+    limpar()
     if start.upper() == 'S':
         while sair == False:
             palavra_secreta = input('Mestre, escreva sua palavra secreta: ')
@@ -377,7 +410,9 @@ def forcamultijogador():
                 print('O jogador perdeu :(\nO mestre venceu!')
             sair = jogar_de_novo()
     else:
-        print('------------------Obrigada por jogar!-------------------')  
+        print('========================================================')
+        print('------------------Obrigado por jogar!-------------------')
+        print('========================================================')  
 
 
 print('-='*55)
@@ -408,10 +443,10 @@ while True:
 
 if modo_de_jogo.upper() == 'SOLO':
     limpar()
-    registro_de_jogadores(jogadores,1)
-    forca()
+    jog_atuais = registro_de_jogadores(jogadores,1)
+    forca(jog_atuais,jogadores,arq_jogadores)
 
 elif modo_de_jogo.upper() == 'MULTIPLAYER':
     limpar()
-    registro_de_jogadores(jogadores,2)
+    jog_atuais = registro_de_jogadores(jogadores,2)
     forcamultijogador()
