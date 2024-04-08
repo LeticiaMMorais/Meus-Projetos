@@ -405,7 +405,7 @@ def forcamultijogador():
                 desenho_forca(erro)
             acertou = verificar_chute(palavra_secreta,espacos, erro, tentativas, dific, dica)
             if acertou == True:
-                print('O mestre perdeu :( \nO jogador venceu com', pontuacao,'pontos!')
+                print('O mestre perdeu :( \nO jogador venceu com, pontuacao, pontos!')
             else:
                 print('O jogador perdeu :(\nO mestre venceu!')
             sair = jogar_de_novo()
