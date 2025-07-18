@@ -12,3 +12,5 @@ Tá bom, vocês nem ligam para mim... TnT
 ------------------------------
 
 Tá, mas e se eu der uma merge com checkout na develop?
+
+ok.
