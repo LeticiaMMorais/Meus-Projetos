@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #000000;
+    color:antiquewhite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.mt-4{
+    
+    align-items: center;
+    justify-self: center;
+
+    background-color: var(--background);
+    border: 0.2rem solid var(--gray-color);
+    margin-top: -5rem;
+}
+
+
+.member{
+    background-color: var(--background);
+    border: 0.2rem solid var(--gray-color);
+    border-radius: 5rem;
+    margin-top: 4rem; 
+} */
+
+.card-co {
+    width: 70rem;
+    height: fit-content;
+}
+
+.mt-4 h4 {
+    position: absolute;
+    padding: 1.5rem 1.5rem 5rem 4rem;
+    width: 40%;
+
+    /* background-color: var(--background);
+    border: 0.2rem 0.2rem solid var(--gray-color);
+    z-index: 3; */
+
+    line-height: 2.3rem;
+    font-size: 1.5rem;
+    color: var(--main-color3);
+   
+}
+
+.mt-4 .member {
+    padding: 12rem 4rem 10rem;
+    display: flex;
+    gap: 3rem;
+
+}
+
+.mt-4 .member .pic{
+    width: 15rem;
+    height: 15rem;
+    overflow: hidden;
+}
+
+.mt-4 .member .pic img {
+    min-height: 100%;
+    min-width: 100%;
+    border-radius: 1rem;
+}
+
+.mt-4 .member .member-info {
+    font-size: 1.5rem;
+    width: 30rem;
+    align-self: center;
+}
+
+.mt-4 .email-member {
+    margin-top: 1.5rem;
+    padding: 0.5rem 1rem;
+    width: fit-content;
+    align-self: center;
+    border: 0.1rem solid #F5F5F5;
+    border-radius: 2rem;
+    color: #F5F5F5;
+    text-decoration: none;
+}
